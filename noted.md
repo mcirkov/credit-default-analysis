@@ -25,6 +25,20 @@ codes outside the documented set.
 
 - Follow-up: Review the source documentation and authors' materials to clarify the meaning of code 0. If its meaning cannot be verified, consider assigning an "Unknown" category in a separate analysis column while preserving the original values.
 
+## PAY_0: impact of excluding undocumented codes
+
+- Check: Compared the observed values with the codes listed in the UCI documentation: -1, 1, 2, 3, 4, 5, 6, 7, 8, and 9.
+
+- Finding: The column contains two codes not explained in the reviewed UCI description: -2 and 0.
+
+- Affected records: 17,496 clients (58.32% of the dataset).
+
+- Impact assessment: The default rate is 12.88% among clients with these codes, compared with 22.12% in the full dataset. Excluding these records would leave 12,504 clients with a default rate of 35.05%, an increase of 12.93 percentage points relative to the full dataset. This reflects a change in sample composition, not a change in client behaviour.
+
+- Current treatment: Retain all records and preserve codes -2 and 0 as separate values. Their absence from the reviewed description is not sufficient evidence that the records are incorrect.
+
+- Follow-up: Review the source documentation and authors' materials to clarify the meaning of both codes. Document any verified definitions and their source before deciding whether recoding is appropriate.
+
 ## Combined impact
 
 - Clients affected by at least one issue: 399 (1.33% of the dataset), counted using the union of the two Boolean masks.
