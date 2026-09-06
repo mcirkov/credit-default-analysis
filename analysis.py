@@ -90,11 +90,12 @@ print(f"Share of all clients: {any_undocumented_pct:.2f}%")
 
 
 # Inspect September repayment status codes
-print("\n=== September repayment status codes ===")
+print("\n=== September repayment status: PAY_0 ===")
 
 print("\nObserved code counts:")
 print(df["PAY_0"].value_counts().sort_index())
 
+# Codes explicitly described in the reviewed UCI documentation.
 documented_pay_0 = df["PAY_0"].isin([-1, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 undocumented_pay_0 = ~documented_pay_0
 
@@ -102,25 +103,37 @@ undocumented_pay_0_pct = (
     undocumented_pay_0.sum() / len(df) * 100
 )
 
-print("\nClients with undocumented September repayment status codes:",
-      undocumented_pay_0.sum())
+print("\nClients with undocumented codes:", undocumented_pay_0.sum())
 print(f"Share of all clients: {undocumented_pay_0_pct:.2f}%")
 
+
+# Assess the impact of excluding undocumented PAY_0 codes
+# Create subsets for comparison; keep the original dataset unchanged.
+print("\n=== Impact of excluding undocumented PAY_0 codes ===")
+
 undocumented_pay_0_clients = df[undocumented_pay_0]
-print(undocumented_pay_0_clients.shape)
+documented_pay_0_clients = df[documented_pay_0]
 
 undocumented_pay_0_default_rate_pct = (
-    undocumented_pay_0_clients["default payment next month"].sum() / len(undocumented_pay_0_clients) * 100
+    undocumented_pay_0_clients["default payment next month"].sum()
+    / len(undocumented_pay_0_clients)
+    * 100
 )
-
-print(f"Default rate among undocumented September repayment status clients:{undocumented_pay_0_default_rate_pct:.2f}%")
-
-
-documented_pay_0_clients = df[documented_pay_0]
-print(documented_pay_0_clients.shape)
 
 documented_pay_0_default_rate_pct = (
-    documented_pay_0_clients["default payment next month"].sum() / len(documented_pay_0_clients) * 100
+    documented_pay_0_clients["default payment next month"].sum()
+    / len(documented_pay_0_clients)
+    * 100
 )
 
-print(f"Default rate among documented September repayment status clients:{documented_pay_0_default_rate_pct:.2f}%")
+print("\nFull dataset:")
+print("Clients:", len(df))
+print(f"Default rate: {default_rate_pct:.2f}%")
+
+print("\nClients with undocumented PAY_0 codes:")
+print("Clients:", len(undocumented_pay_0_clients))
+print(f"Default rate: {undocumented_pay_0_default_rate_pct:.2f}%")
+
+print("\nClients with documented PAY_0 codes:")
+print("Clients:", len(documented_pay_0_clients))
+print(f"Default rate: {documented_pay_0_default_rate_pct:.2f}%")
