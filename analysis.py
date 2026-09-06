@@ -105,3 +105,22 @@ undocumented_pay_0_pct = (
 print("\nClients with undocumented September repayment status codes:",
       undocumented_pay_0.sum())
 print(f"Share of all clients: {undocumented_pay_0_pct:.2f}%")
+
+undocumented_pay_0_clients = df[undocumented_pay_0]
+print(undocumented_pay_0_clients.shape)
+
+undocumented_pay_0_default_rate_pct = (
+    undocumented_pay_0_clients["default payment next month"].sum() / len(undocumented_pay_0_clients) * 100
+)
+
+print(f"Default rate among undocumented September repayment status clients:{undocumented_pay_0_default_rate_pct:.2f}%")
+
+
+documented_pay_0_clients = df[documented_pay_0]
+print(documented_pay_0_clients.shape)
+
+documented_pay_0_default_rate_pct = (
+    documented_pay_0_clients["default payment next month"].sum() / len(documented_pay_0_clients) * 100
+)
+
+print(f"Default rate among documented September repayment status clients:{documented_pay_0_default_rate_pct:.2f}%")
