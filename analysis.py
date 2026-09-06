@@ -87,3 +87,21 @@ any_undocumented_pct = any_undocumented.sum() / len(df) * 100
 print("Clients with at least one undocumented code:",
       any_undocumented.sum())
 print(f"Share of all clients: {any_undocumented_pct:.2f}%")
+
+
+# Inspect September repayment status codes
+print("\n=== September repayment status codes ===")
+
+print("\nObserved code counts:")
+print(df["PAY_0"].value_counts().sort_index())
+
+documented_pay_0 = df["PAY_0"].isin([-1, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+undocumented_pay_0 = ~documented_pay_0
+
+undocumented_pay_0_pct = (
+    undocumented_pay_0.sum() / len(df) * 100
+)
+
+print("\nClients with undocumented September repayment status codes:",
+      undocumented_pay_0.sum())
+print(f"Share of all clients: {undocumented_pay_0_pct:.2f}%")
