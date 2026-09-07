@@ -1,26 +1,27 @@
 import pandas as pd
 
-# Load source data
+
+# 1. Load source data
 # Column names are on the second row of the source Excel file.
 df = pd.read_excel(
     "data/raw/default of credit card clients.xls",
-    header=1
+    header=1,
 )
 
 
-# Inspect dataset structure
-print("\n=== Dataset Structure ===")
+# 2. Inspect dataset structure and missing values
+print("\n=== Dataset structure and missing values ===")
 
-print("\nFirst 5 rows:")
-print(df.head())
-
-print("\nDataset shape (rows, columns):", df.shape)
+print("Dataset shape (rows, columns):", df.shape)
 
 print("\nColumn types and non-null counts:")
 df.info()
 
+missing_counts = df.isna().sum()
+print("\nTotal missing values:", missing_counts.sum())
 
-# Check age range and client IDs
+
+# 3. Check age range and client IDs
 print("\n=== Age range and client IDs ===")
 
 print("Minimum age:", df["AGE"].min())
@@ -29,20 +30,35 @@ print("Unique client IDs:", df["ID"].nunique())
 print("Total records:", len(df))
 
 
-# Check default labels and calculate default rate
+# 4. Check default labels and calculate the default rate
 print("\n=== Default labels and default rate ===")
 
-print("\nDefault label counts:")
+print("\nObserved label counts:")
 print(df["default payment next month"].value_counts().sort_index())
 
 default_rate_pct = (
     df["default payment next month"].sum() / len(df) * 100
 )
 
-print(f"Default rate: {default_rate_pct:.2f}%")
+print(f"\nDefault rate: {default_rate_pct:.2f}%")
 
 
-# Check education codes against documentation
+# 5. Check SEX codes
+print("\n=== SEX codes ===")
+
+print("\nObserved code counts:")
+print(df["SEX"].value_counts(dropna=False).sort_index())
+
+documented_sex = df["SEX"].isin([1, 2])
+undocumented_sex = ~documented_sex
+
+print(
+    "\nRecords with undocumented SEX codes:",
+    undocumented_sex.sum(),
+)
+
+
+# 6. Check education codes against documentation
 print("\n=== Education codes ===")
 
 print("\nObserved code counts:")
@@ -55,12 +71,14 @@ undocumented_education_pct = (
     undocumented_education.sum() / len(df) * 100
 )
 
-print("\nClients with undocumented education codes:",
-      undocumented_education.sum())
-print(f"Share of all clients: {undocumented_education_pct:.2f}%")
+print(
+    "\nRecords with undocumented education codes:",
+    undocumented_education.sum(),
+)
+print(f"Share of all records: {undocumented_education_pct:.2f}%")
 
 
-# Check marital status codes against documentation
+# 7. Check marital status codes against documentation
 print("\n=== Marital status codes ===")
 
 print("\nObserved code counts:")
@@ -73,43 +91,79 @@ undocumented_marriage_pct = (
     undocumented_marriage.sum() / len(df) * 100
 )
 
-print("\nClients with undocumented marital status codes:",
-      undocumented_marriage.sum())
-print(f"Share of all clients: {undocumented_marriage_pct:.2f}%")
+print(
+    "\nRecords with undocumented marital status codes:",
+    undocumented_marriage.sum(),
+)
+print(f"Share of all records: {undocumented_marriage_pct:.2f}%")
 
 
-# Count clients with any undocumented demographic code
-print("\n=== Combined education and marital status findings ===")
+# 8. Count records with either undocumented demographic code
+print("\n=== Combined EDUCATION and MARRIAGE findings ===")
 
 any_undocumented = undocumented_education | undocumented_marriage
 any_undocumented_pct = any_undocumented.sum() / len(df) * 100
 
-print("Clients with at least one undocumented code:",
-      any_undocumented.sum())
-print(f"Share of all clients: {any_undocumented_pct:.2f}%")
+print(
+    "Records with at least one undocumented code:",
+    any_undocumented.sum(),
+)
+print(f"Share of all records: {any_undocumented_pct:.2f}%")
 
 
-# Inspect September repayment status codes
-print("\n=== September repayment status: PAY_0 ===")
+# 9. Inspect repayment status codes across all six months
+print("\n=== Repayment status code checks ===")
 
-print("\nObserved code counts:")
-print(df["PAY_0"].value_counts().sort_index())
+repayment_columns = [
+    "PAY_0",
+    "PAY_2",
+    "PAY_3",
+    "PAY_4",
+    "PAY_5",
+    "PAY_6",
+]
+documented_repayment_codes = [-1, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+repayment_check_results = []
 
-# Codes explicitly described in the reviewed UCI documentation.
-documented_pay_0 = df["PAY_0"].isin([-1, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-undocumented_pay_0 = ~documented_pay_0
+for repayment_col in repayment_columns:
+    print(f"\nObserved code counts: {repayment_col}")
+    print(df[repayment_col].value_counts().sort_index())
 
-undocumented_pay_0_pct = (
-    undocumented_pay_0.sum() / len(df) * 100
+    documented_repayment = df[repayment_col].isin(
+        documented_repayment_codes
+    )
+    undocumented_repayment = ~documented_repayment
+
+    undocumented_repayment_count = undocumented_repayment.sum()
+    undocumented_repayment_pct = (
+        undocumented_repayment_count / len(df) * 100
+    )
+
+    result = {
+        "column": repayment_col,
+        "undocumented_count": undocumented_repayment_count,
+        "undocumented_pct": undocumented_repayment_pct,
+    }
+    repayment_check_results.append(result)
+
+repayment_summary = pd.DataFrame(repayment_check_results)
+
+print("\n=== Repayment status summary ===")
+print(repayment_summary.round(2).to_string(index=False))
+
+repayment_summary.to_csv(
+    "reports/repayment_status_summary.csv",
+    index=False,
+    float_format="%.2f",
 )
 
-print("\nClients with undocumented codes:", undocumented_pay_0.sum())
-print(f"Share of all clients: {undocumented_pay_0_pct:.2f}%")
 
-
-# Assess the impact of excluding undocumented PAY_0 codes
+# 10. Assess the impact of excluding undocumented PAY_0 codes
 # Create subsets for comparison; keep the original dataset unchanged.
 print("\n=== Impact of excluding undocumented PAY_0 codes ===")
+
+documented_pay_0 = df["PAY_0"].isin(documented_repayment_codes)
+undocumented_pay_0 = ~documented_pay_0
 
 undocumented_pay_0_clients = df[undocumented_pay_0]
 documented_pay_0_clients = df[documented_pay_0]
@@ -127,75 +181,19 @@ documented_pay_0_default_rate_pct = (
 )
 
 print("\nFull dataset:")
-print("Clients:", len(df))
+print("Records:", len(df))
 print(f"Default rate: {default_rate_pct:.2f}%")
 
-print("\nClients with undocumented PAY_0 codes:")
-print("Clients:", len(undocumented_pay_0_clients))
+print("\nRecords with undocumented PAY_0 codes:")
+print("Records:", len(undocumented_pay_0_clients))
 print(f"Default rate: {undocumented_pay_0_default_rate_pct:.2f}%")
 
-print("\nClients with documented PAY_0 codes:")
-print("Clients:", len(documented_pay_0_clients))
+print("\nRecords with documented PAY_0 codes:")
+print("Records:", len(documented_pay_0_clients))
 print(f"Default rate: {documented_pay_0_default_rate_pct:.2f}%")
 
-# Inspect repayment status codes across all six months
-print("\n=== Repayment status code checks ===")
 
-repayment_columns = [
-    "PAY_0",
-    "PAY_2",
-    "PAY_3",
-    "PAY_4",
-    "PAY_5",
-    "PAY_6",
-]
-documented_repayment_codes = [-1, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-repayment_check_results = []
-
-for repayment_col in repayment_columns:
-    print(f"\n--- {repayment_col} ---")
-
-    print("Observed code counts:")
-    print(df[repayment_col].value_counts().sort_index())
-
-    # Identify values outside the documented code list
-    documented_repayment = df[repayment_col].isin(
-        documented_repayment_codes
-    )
-    undocumented_repayment = ~documented_repayment
-
-    undocumented_repayment_count = undocumented_repayment.sum()
-    undocumented_repayment_pct = (
-        undocumented_repayment_count / len(df) * 100
-    )
-
-    print(
-        "Clients with undocumented codes:",
-        undocumented_repayment_count,
-    )
-    print(f"Share of all clients: {undocumented_repayment_pct:.2f}%")
-
-    # Store the results for this column
-    result = {
-        "column": repayment_col,
-        "undocumented_count": undocumented_repayment_count,
-        "undocumented_pct": undocumented_repayment_pct,
-    }
-    repayment_check_results.append(result)
-
-# Build and export the summary after checking all columns
-repayment_summary = pd.DataFrame(repayment_check_results)
-
-print("\n=== Repayment status summary ===")
-print(repayment_summary.round(2).to_string(index=False))
-
-repayment_summary.to_csv(
-    "reports/repayment_status_summary.csv",
-    index=False,
-    float_format="%.2f",
-)
-
-# Inspect credit limit distribution
+# 11. Inspect credit limit distribution
 print("\n=== Credit limit distribution ===")
 
 print("\nDescriptive statistics:")
@@ -205,16 +203,13 @@ print("\nTen largest credit limits:")
 print(df["LIMIT_BAL"].nlargest(10))
 
 
-# Inspect September bill amount distribution
+# 12. Inspect September bill amount distribution
 print("\n=== September bill amount distribution ===")
 
-print("\nDescriptive statistics:")
 print(df["BILL_AMT1"].describe().round(2))
 
 
-# Check negative bill amounts across all six months
-print("\n=== Negative bill amount checks ===")
-
+# 13. Check negative bill amounts across all six months
 bill_columns = [
     "BILL_AMT1",
     "BILL_AMT2",
@@ -226,19 +221,11 @@ bill_columns = [
 bill_check_results = []
 
 for bill_col in bill_columns:
-    print(f"\n--- {bill_col} ---")
-
-    # Calculate the minimum and the share of negative values
     min_amount = df[bill_col].min()
     negative_bill = df[bill_col] < 0
     negative_bill_count = negative_bill.sum()
     negative_bill_pct = negative_bill_count / len(df) * 100
 
-    print("Minimum bill amount:", min_amount)
-    print("Clients with negative bill amounts:", negative_bill_count)
-    print(f"Share of all clients: {negative_bill_pct:.2f}%")
-
-    # Store the results for this column
     result = {
         "column": bill_col,
         "min_amount": min_amount,
@@ -247,7 +234,6 @@ for bill_col in bill_columns:
     }
     bill_check_results.append(result)
 
-# Build and export the summary after checking all columns
 bill_summary = pd.DataFrame(bill_check_results)
 
 print("\n=== Bill amount summary ===")
@@ -259,32 +245,30 @@ bill_summary.to_csv(
     float_format="%.2f",
 )
 
-# Inspect September payment amount distribution
+
+# 14. Inspect September payment amount distribution
 print("\n=== September payment amount distribution ===")
+
+print("\nDescriptive statistics:")
 print(df["PAY_AMT1"].describe().round(2))
 
-zero_payment_amt1 = df["PAY_AMT1"] == 0
-print(zero_payment_amt1.sum())
-
-zero_payment_amt1_pct = zero_payment_amt1.sum() / len(df) * 100
-print(f"Share of clients with zero payment: {zero_payment_amt1_pct:.2f}%")
+print("\nTen largest September payments:")
 print(df["PAY_AMT1"].nlargest(10))
 
 
+# 15. Check payment amounts across all six months
 payment_columns = [
     "PAY_AMT1",
     "PAY_AMT2",
     "PAY_AMT3",
     "PAY_AMT4",
     "PAY_AMT5",
-    "PAY_AMT6"
+    "PAY_AMT6",
 ]
-
 payment_check_results = []
-for payment_col in payment_columns:
-    print(f"\n--- {payment_col} ---")
 
-   # Check payment ranges, negative counts, and zero-payment shares
+for payment_col in payment_columns:
+    # Check payment ranges, negative counts, and zero-payment shares.
     min_amount = df[payment_col].min()
     max_amount = df[payment_col].max()
     negative_payment = df[payment_col] < 0
@@ -312,32 +296,45 @@ payment_summary.to_csv(
     float_format="%.2f",
 )
 
-# Check for duplicate records excluding the client identifier
-print("\n=== Duplicate records excluding ID ===")
+
+# 16. Check matching records excluding ID
+# The target remains included in the comparison.
+print("\n=== Matching records excluding ID ===")
 
 df_without_id = df.drop(columns=["ID"])
 duplicate_records = df_without_id.duplicated()
 
-print("Duplicate records beyond the first occurrence:", duplicate_records.sum())
-
-# Inspect all records involved in duplicates, including first occurrences
+# Include first occurrences when selecting records for inspection.
 all_duplicate_records = df_without_id.duplicated(keep=False)
 duplicate_clients = df[all_duplicate_records]
 
-print("Records involved in duplicate groups:", len(duplicate_clients))
-print(duplicate_clients.head(10).to_string(index=False))
+duplicate_clients_pct = len(duplicate_clients) / len(df) * 100
 
-duplicate_clients_pct = (len(duplicate_clients) / len(df) * 100)
-print(f"\nShare of records involved in duplicate groups: {duplicate_clients_pct:.2f}%")
+print(
+    "Duplicate records beyond the first occurrence:",
+    duplicate_records.sum(),
+)
+print(
+    "Records involved in duplicate groups:",
+    len(duplicate_clients),
+)
+print(
+    "Share of records involved in duplicate groups:",
+    f"{duplicate_clients_pct:.2f}%",
+)
 
-duplicate_clients.to_csv("reports/duplicate_records_excluding_id.csv.csv", index = False)
+duplicate_clients.to_csv(
+    "reports/duplicate_records_excluding_id.csv",
+    index=False,
+)
 
-print(df["SEX"].value_counts(dropna=False))
 
-documented_sex = df["SEX"].isin([1, 2])
-undocumented_sex = ~documented_sex
+# 17. Confirm report exports
+print("\n=== Reports saved ===")
 
-print("Records with undocumented SEX codes:", undocumented_sex.sum())
+print("reports/repayment_status_summary.csv")
+print("reports/bill_amount_summary.csv")
+print("reports/payment_amount_summary.csv")
+print("reports/duplicate_records_excluding_id.csv")
 
-missing_counts = df.isna().sum()
-print("Total missing values:", missing_counts.sum())
+print("\nChecks completed. Original data remains unchanged.")
