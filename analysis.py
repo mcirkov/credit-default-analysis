@@ -312,5 +312,22 @@ payment_summary.to_csv(
     float_format="%.2f",
 )
 
+# Check for duplicate records excluding the client identifier
+print("\n=== Duplicate records excluding ID ===")
 
-    
+df_without_id = df.drop(columns=["ID"])
+duplicate_records = df_without_id.duplicated()
+
+print("Duplicate records beyond the first occurrence:", duplicate_records.sum())
+
+# Inspect all records involved in duplicates, including first occurrences
+all_duplicate_records = df_without_id.duplicated(keep=False)
+duplicate_clients = df[all_duplicate_records]
+
+print("Records involved in duplicate groups:", len(duplicate_clients))
+print(duplicate_clients.head(10).to_string(index=False))
+
+duplicate_clients_pct = (len(duplicate_clients) / len(df) * 100)
+print(f"\nShare of records involved in duplicate groups: {duplicate_clients_pct:.2f}%")
+
+duplicate_clients.to_csv("reports/duplicate_records_excluding_id.csv.csv", index = False)

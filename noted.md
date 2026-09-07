@@ -62,6 +62,13 @@ codes outside the documented set.
 - All percentages above use the full dataset of 30,000 records as the denominator and are calculated separately for each column.
 - The same client may appear in multiple monthly counts. These counts and percentages must not be added together to estimate the number or share of unique clients affected across all six months.
 
+## Duplicate records excluding ID
+
+- Check: Compared all columns except ID, including the target variable, to identify records with identical values.
+- Findings: Found 35 duplicate records beyond the first occurrence. A total of 70 records participate in duplicate groups, representing 0.23% of the dataset.
+- Current treatment: Retain all records. Identical values associated with different IDs do not establish that the records represent the same client. Exported the matching records, including their IDs, for further inspection.
+- Follow-up: Inspect the matching records and review any available information about data collection to assess whether the matches represent accidental duplication or distinct clients with identical recorded characteristics.
+
 ## Combined impact
 
 - Clients affected by at least one issue: 399 (1.33% of the dataset), counted using the union of the two Boolean masks.
