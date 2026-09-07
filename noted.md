@@ -69,6 +69,20 @@ codes outside the documented set.
 - Current treatment: Retain all records. Identical values associated with different IDs do not establish that the records represent the same client. Exported the matching records, including their IDs, for further inspection.
 - Follow-up: Inspect the matching records and review any available information about data collection to assess whether the matches represent accidental duplication or distinct clients with identical recorded characteristics.
 
+## SEX: category check
+
+- Check: Inspected value counts, including missing values, and checked for codes outside the expected list [1, 2].
+- Findings: Code 1 occurs in 11,888 records and code 2 in 18,112 records. No missing values or codes outside the expected list were found.
+- Current treatment: Retain the original values. No corrections are required based on this check.
+- Limitation: This check confirms that the recorded values belong to the expected code list; it does not verify the accuracy of the underlying client information.
+
+## Missing values
+
+- Check: Used isna() to count missing values in each of the 25 columns and summed these counts across the dataset.
+- Findings: No pandas-recognized missing values were found in the 30,000 records.
+- Current treatment: No missing-value imputation or removal of records due to missing values was performed.
+- Limitation: This check does not identify undocumented numeric codes or other values that may represent unknown information. Undocumented category codes were assessed separately.
+
 ## Combined impact
 
 - Clients affected by at least one issue: 399 (1.33% of the dataset), counted using the union of the two Boolean masks.

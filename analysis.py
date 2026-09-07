@@ -331,3 +331,13 @@ duplicate_clients_pct = (len(duplicate_clients) / len(df) * 100)
 print(f"\nShare of records involved in duplicate groups: {duplicate_clients_pct:.2f}%")
 
 duplicate_clients.to_csv("reports/duplicate_records_excluding_id.csv.csv", index = False)
+
+print(df["SEX"].value_counts(dropna=False))
+
+documented_sex = df["SEX"].isin([1, 2])
+undocumented_sex = ~documented_sex
+
+print("Records with undocumented SEX codes:", undocumented_sex.sum())
+
+missing_counts = df.isna().sum()
+print("Total missing values:", missing_counts.sum())
