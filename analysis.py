@@ -164,3 +164,44 @@ print(repayment_summary.round(2))
 
 repayment_summary.to_csv("reports/repayment_status_summary.csv", index=False)
 
+
+# Inspect credit limit distribution
+print("\n=== Credit limit distribution ===")
+print(df["LIMIT_BAL"].describe())
+
+print(df["LIMIT_BAL"].nlargest(10))
+
+print(df["BILL_AMT1"].describe())
+
+negative_bill_amt1 = (df["BILL_AMT1"] < 0)
+print(negative_bill_amt1.sum())
+print(f"{negative_bill_amt1.sum() / len(df) * 100:.2f}%")
+
+bill_check_result = []
+bill_columns = ["BILL_AMT1", "BILL_AMT2", "BILL_AMT3", "BILL_AMT4", "BILL_AMT5", "BILL_AMT6"]
+for bill_col in bill_columns:
+    print(bill_col)
+    min_amount = df[bill_col].min()
+    negative_bill = (df[bill_col] < 0)
+    negative_bill_count = negative_bill.sum()
+    negative_bill_pct = negative_bill_count / len(df) * 100
+    print("Minimum bill amount:", min_amount)
+    print("Clients with negative bill amounts:", negative_bill_count)
+    print(f"Share of all clients: {negative_bill_pct:.2f}%")
+    result = {
+        "column" : bill_col,
+        "min_amount" : min_amount,
+        "negative_count" : negative_bill_count,
+        "negative_pct" : negative_bill_pct
+    }
+    bill_check_result.append(result)
+
+bill_summary = pd.DataFrame(bill_check_result)
+print("\n=== Bill amount summary ===")
+print(bill_summary.round(2))
+
+bill_summary.to_csv(
+    "reports/bill_amount_summary.csv",
+    index=False,
+    float_format="%.2f",
+)
