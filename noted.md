@@ -39,6 +39,29 @@ codes outside the documented set.
 
 - Follow-up: Review the source documentation and authors' materials to clarify the meaning of both codes. Document any verified definitions and their source before deciding whether recoding is appropriate.
 
+## BILL_AMT1–BILL_AMT6: negative bill amounts
+
+- Check: Inspected the minimum bill amount and calculated the count and share of negative values in each of the six bill amount columns.
+- Findings: Negative bill amounts occur in all six columns, affecting between 1.97% and 2.29% of records per column. The lowest observed amount is -339,603 in BILL_AMT6.
+- Interpretation: Negative bill amounts may represent credit balances, for example due to overpayments. This is a possible explanation, not a confirmed interpretation for this dataset.
+- Current treatment: Retain the original values. Negative amounts are not classified as errors solely because they are below zero.
+- Follow-up: Review the source documentation to clarify the meaning of negative bill amounts and inspect the corresponding client records, particularly those with the largest negative amounts.
+- Output: reports/bill_amount_summary.csv
+
+## PAY_AMT1–PAY_AMT6: payment amounts
+
+- Check: Inspected the minimum and maximum payment amounts, counted negative and zero values, and calculated the share of zero values in each of the six payment amount columns.
+- Findings: No negative payment amounts were found. Zero payment amounts occur in all six columns, affecting between 17.50% and 23.91% of records per column. The largest observed payment is 1,684,259 in PAY_AMT2.
+- Interpretation: A zero payment amount alone does not establish delinquency or default. Large payment amounts warrant further investigation but are not necessarily data errors.
+- Current treatment: Retain all original values. Do not remove zero payments or classify them as defaults. Do not remove or cap large payments without further investigation.
+- Follow-up: Inspect the largest payments alongside the corresponding clients' credit limits, bill amounts, and repayment history, taking the timing of each variable into account.
+- Output: reports/payment_amount_summary.csv
+
+### Scope of the reported percentages
+
+- All percentages above use the full dataset of 30,000 records as the denominator and are calculated separately for each column.
+- The same client may appear in multiple monthly counts. These counts and percentages must not be added together to estimate the number or share of unique clients affected across all six months.
+
 ## Combined impact
 
 - Clients affected by at least one issue: 399 (1.33% of the dataset), counted using the union of the two Boolean masks.
