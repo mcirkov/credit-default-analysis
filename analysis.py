@@ -138,67 +138,121 @@ print("\nClients with documented PAY_0 codes:")
 print("Clients:", len(documented_pay_0_clients))
 print(f"Default rate: {documented_pay_0_default_rate_pct:.2f}%")
 
+# Inspect repayment status codes across all six months
+print("\n=== Repayment status code checks ===")
+
+repayment_columns = [
+    "PAY_0",
+    "PAY_2",
+    "PAY_3",
+    "PAY_4",
+    "PAY_5",
+    "PAY_6",
+]
+documented_repayment_codes = [-1, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 repayment_check_results = []
-repayment_columns = ["PAY_0", "PAY_2", "PAY_3", "PAY_4", "PAY_5", "PAY_6"]
+
 for repayment_col in repayment_columns:
-    print(repayment_col)
+    print(f"\n--- {repayment_col} ---")
+
+    print("Observed code counts:")
     print(df[repayment_col].value_counts().sort_index())
-    documented_repayment = df[repayment_col].isin([-1, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-    undocumented_repayment = ~documented_repayment
-    undocumented_repayment_pct = (
-        undocumented_repayment.sum() / len(df) * 100
+
+    # Identify values outside the documented code list
+    documented_repayment = df[repayment_col].isin(
+        documented_repayment_codes
     )
-    print("\nClients with undocumented codes:", undocumented_repayment.sum())
+    undocumented_repayment = ~documented_repayment
+
+    undocumented_repayment_count = undocumented_repayment.sum()
+    undocumented_repayment_pct = (
+        undocumented_repayment_count / len(df) * 100
+    )
+
+    print(
+        "Clients with undocumented codes:",
+        undocumented_repayment_count,
+    )
     print(f"Share of all clients: {undocumented_repayment_pct:.2f}%")
+
+    # Store the results for this column
     result = {
         "column": repayment_col,
-        "undocumented_count": undocumented_repayment.sum(),
-        "undocumented_pct": undocumented_repayment_pct
+        "undocumented_count": undocumented_repayment_count,
+        "undocumented_pct": undocumented_repayment_pct,
     }
     repayment_check_results.append(result)
-print(len(repayment_check_results))
 
+# Build and export the summary after checking all columns
 repayment_summary = pd.DataFrame(repayment_check_results)
-print("\n=== Repayment status summary ===")
-print(repayment_summary.round(2))
 
-repayment_summary.to_csv("reports/repayment_status_summary.csv", index=False)
+print("\n=== Repayment status summary ===")
+print(repayment_summary.round(2).to_string(index=False))
+
+repayment_summary.to_csv(
+    "reports/repayment_status_summary.csv",
+    index=False,
+    float_format="%.2f",
+)
 
 
 # Inspect credit limit distribution
 print("\n=== Credit limit distribution ===")
-print(df["LIMIT_BAL"].describe())
 
+print("\nDescriptive statistics:")
+print(df["LIMIT_BAL"].describe().round(2))
+
+print("\nTen largest credit limits:")
 print(df["LIMIT_BAL"].nlargest(10))
 
-print(df["BILL_AMT1"].describe())
 
-negative_bill_amt1 = (df["BILL_AMT1"] < 0)
-print(negative_bill_amt1.sum())
-print(f"{negative_bill_amt1.sum() / len(df) * 100:.2f}%")
+# Inspect September bill amount distribution
+print("\n=== September bill amount distribution ===")
 
-bill_check_result = []
-bill_columns = ["BILL_AMT1", "BILL_AMT2", "BILL_AMT3", "BILL_AMT4", "BILL_AMT5", "BILL_AMT6"]
+print("\nDescriptive statistics:")
+print(df["BILL_AMT1"].describe().round(2))
+
+
+# Check negative bill amounts across all six months
+print("\n=== Negative bill amount checks ===")
+
+bill_columns = [
+    "BILL_AMT1",
+    "BILL_AMT2",
+    "BILL_AMT3",
+    "BILL_AMT4",
+    "BILL_AMT5",
+    "BILL_AMT6",
+]
+bill_check_results = []
+
 for bill_col in bill_columns:
-    print(bill_col)
+    print(f"\n--- {bill_col} ---")
+
+    # Calculate the minimum and the share of negative values
     min_amount = df[bill_col].min()
-    negative_bill = (df[bill_col] < 0)
+    negative_bill = df[bill_col] < 0
     negative_bill_count = negative_bill.sum()
     negative_bill_pct = negative_bill_count / len(df) * 100
+
     print("Minimum bill amount:", min_amount)
     print("Clients with negative bill amounts:", negative_bill_count)
     print(f"Share of all clients: {negative_bill_pct:.2f}%")
-    result = {
-        "column" : bill_col,
-        "min_amount" : min_amount,
-        "negative_count" : negative_bill_count,
-        "negative_pct" : negative_bill_pct
-    }
-    bill_check_result.append(result)
 
-bill_summary = pd.DataFrame(bill_check_result)
+    # Store the results for this column
+    result = {
+        "column": bill_col,
+        "min_amount": min_amount,
+        "negative_count": negative_bill_count,
+        "negative_pct": negative_bill_pct,
+    }
+    bill_check_results.append(result)
+
+# Build and export the summary after checking all columns
+bill_summary = pd.DataFrame(bill_check_results)
+
 print("\n=== Bill amount summary ===")
-print(bill_summary.round(2))
+print(bill_summary.round(2).to_string(index=False))
 
 bill_summary.to_csv(
     "reports/bill_amount_summary.csv",
