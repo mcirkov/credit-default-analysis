@@ -137,3 +137,30 @@ print(f"Default rate: {undocumented_pay_0_default_rate_pct:.2f}%")
 print("\nClients with documented PAY_0 codes:")
 print("Clients:", len(documented_pay_0_clients))
 print(f"Default rate: {documented_pay_0_default_rate_pct:.2f}%")
+
+repayment_check_results = []
+repayment_columns = ["PAY_0", "PAY_2", "PAY_3", "PAY_4", "PAY_5", "PAY_6"]
+for repayment_col in repayment_columns:
+    print(repayment_col)
+    print(df[repayment_col].value_counts().sort_index())
+    documented_repayment = df[repayment_col].isin([-1, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    undocumented_repayment = ~documented_repayment
+    undocumented_repayment_pct = (
+        undocumented_repayment.sum() / len(df) * 100
+    )
+    print("\nClients with undocumented codes:", undocumented_repayment.sum())
+    print(f"Share of all clients: {undocumented_repayment_pct:.2f}%")
+    result = {
+        "column": repayment_col,
+        "undocumented_count": undocumented_repayment.sum(),
+        "undocumented_pct": undocumented_repayment_pct
+    }
+    repayment_check_results.append(result)
+print(len(repayment_check_results))
+
+repayment_summary = pd.DataFrame(repayment_check_results)
+print("\n=== Repayment status summary ===")
+print(repayment_summary.round(2))
+
+repayment_summary.to_csv("reports/repayment_status_summary.csv", index=False)
+
