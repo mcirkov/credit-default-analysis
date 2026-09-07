@@ -195,7 +195,6 @@ repayment_summary.to_csv(
     float_format="%.2f",
 )
 
-
 # Inspect credit limit distribution
 print("\n=== Credit limit distribution ===")
 
@@ -259,3 +258,59 @@ bill_summary.to_csv(
     index=False,
     float_format="%.2f",
 )
+
+# Inspect September payment amount distribution
+print("\n=== September payment amount distribution ===")
+print(df["PAY_AMT1"].describe().round(2))
+
+zero_payment_amt1 = df["PAY_AMT1"] == 0
+print(zero_payment_amt1.sum())
+
+zero_payment_amt1_pct = zero_payment_amt1.sum() / len(df) * 100
+print(f"Share of clients with zero payment: {zero_payment_amt1_pct:.2f}%")
+print(df["PAY_AMT1"].nlargest(10))
+
+
+payment_columns = [
+    "PAY_AMT1",
+    "PAY_AMT2",
+    "PAY_AMT3",
+    "PAY_AMT4",
+    "PAY_AMT5",
+    "PAY_AMT6"
+]
+
+payment_check_results = []
+for payment_col in payment_columns:
+    print(f"\n--- {payment_col} ---")
+
+   # Check payment ranges, negative counts, and zero-payment shares
+    min_amount = df[payment_col].min()
+    max_amount = df[payment_col].max()
+    negative_payment = df[payment_col] < 0
+    zero_payment = df[payment_col] == 0
+    zero_pct = zero_payment.sum() / len(df) * 100
+
+    result = {
+        "column": payment_col,
+        "min_amount": min_amount,
+        "max_amount": max_amount,
+        "negative_count": negative_payment.sum(),
+        "zero_count": zero_payment.sum(),
+        "zero_pct": zero_pct,
+    }
+    payment_check_results.append(result)
+
+payment_summary = pd.DataFrame(payment_check_results)
+
+print("\n=== Payment amount summary ===")
+print(payment_summary.round(2).to_string(index=False))
+
+payment_summary.to_csv(
+    "reports/payment_amount_summary.csv",
+    index=False,
+    float_format="%.2f",
+)
+
+
+    
