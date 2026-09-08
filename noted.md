@@ -1,4 +1,6 @@
-1. Scope and interpretation
+# Data quality notes
+
+## 1. Scope and interpretation
 
 These notes document the initial quality review of the loaded dataset: 30,000 records and 25 columns, including `ID` and the target `default payment next month`.
 
@@ -158,5 +160,5 @@ Before finalising preprocessing and model evaluation:
 
 - **Variable definitions:** [UCI Machine Learning Repository — Default of Credit Card Clients](https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients), section “Additional Variable Information”. Dataset DOI: [10.24432/C55S3H](https://doi.org/10.24432/C55S3H).
 - **Units and timing:** The source describes monetary amounts in NT dollars and the six monthly histories from April to September 2005. The monthly column sequences used here run from September back to April.
-- **Observed counts and statistics:** Project analysis outputs reviewed during this work, rather than counts quoted from the source description. The restructuring of this document did not rerun the dataset analysis.
-- **Generated summaries:** The three CSV summary paths are listed in the relevant sections. A separate export of the 70 matching records was also created; its exact filename should be checked in the project before adding a reference here.
+- **Observed counts and statistics:** Calculated from the project dataset, rather than quoted from the source description. During the 8 September 2026 review, the analysis script was rerun in a temporary directory using the project environment. The four regenerated CSV reports matched the reports stored in the project.
+- **Generated summaries:** The three summary CSV paths are listed in the relevant sections. The 70 matching records, including their IDs, are available in [duplicate_records_excluding_id.csv](reports/duplicate_records_excluding_id.csv).

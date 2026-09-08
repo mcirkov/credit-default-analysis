@@ -1,0 +1,5 @@
+# Direct dependencies from the checked Python 3.14.7 environment.
+# Transitive dependencies are not locked; clean installation is not yet verified.
+pandas==3.0.5
+xlrd==2.0.2
+ipykernel==7.3.0

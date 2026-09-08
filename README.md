@@ -30,6 +30,8 @@ Source: [UCI — Default of Credit Card Clients](https://archive.ics.uci.edu/dat
 
 Citation: Yeh, I. (2009). *Default of Credit Card Clients* [Dataset]. UCI Machine Learning Repository. https://doi.org/10.24432/C55S3H.
 
+**Dataset licence:** [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/), as listed on the UCI dataset page. The source Excel file is retained without modification; the CSV reports are derived outputs from that dataset. This statement concerns the dataset and does not assign a licence to the project's original code.
+
 This is a public historical dataset, not data from a prospective employer or a current lending portfolio.
 
 ## Work Completed
@@ -97,6 +99,7 @@ Detailed findings, limitations, and follow-up actions are recorded in [noted.md]
 ├── analysis.py
 ├── noted.md
 ├── README.md
+├── requirements.txt
 ├── data/
 │   └── raw/
 │       └── default of credit card clients.xls
@@ -111,6 +114,7 @@ Detailed findings, limitations, and follow-up actions are recorded in [noted.md]
 
 - **analysis.py:** data quality checks and CSV report generation.
 - **noted.md:** findings, interpretations, and data treatment decisions.
+- **requirements.txt:** pinned versions of the three direct Python dependencies used in the checked environment.
 - **notebooks/:** exploratory analysis, currently in development.
 - **reports/:** generated summaries and records exported for inspection.
 - **data/raw/:** original source file.
@@ -119,17 +123,19 @@ Detailed findings, limitations, and follow-up actions are recorded in [noted.md]
 
 ### 1. Prepare the data
 
-Download the original Excel file from the UCI dataset page and place it at:
+The source Excel file is already included in this repository at:
 
 ```text
 data/raw/default of credit card clients.xls
 ```
 
-Keep the original filename. The script uses the second Excel row as column headers.
+No separate download is required after cloning the complete repository. If the file is missing, obtain it from the UCI dataset page and place it at the path above. Keep the original filename. The script uses the second Excel row as column headers.
 
 ### 2. Prepare a Python environment
 
-Create and activate a virtual environment.
+The existing project was checked with **Python 3.14.7**, **pandas 3.0.5**, **xlrd 2.0.2**, and **ipykernel 7.3.0**. Use Python 3.14.7 to match the checked environment; the commands below assume `python3` points to that interpreter.
+
+Create and activate a virtual environment:
 
 On macOS or Linux:
 
@@ -141,10 +147,10 @@ source .venv/bin/activate
 Install the packages used by the project:
 
 ```bash
-python -m pip install pandas xlrd ipykernel
+python -m pip install -r requirements.txt
 ```
 
-An exact, tested dependency specification will be added as the project develops.
+The direct dependencies are pinned in `requirements.txt`; this is not a complete lockfile for transitive dependencies. The script and the notebook's current code cells were successfully executed in the existing project environment. Installation into a new environment and execution on other operating systems have not yet been verified.
 
 ### 3. Run the data quality checks
 
@@ -178,7 +184,8 @@ Run cells from top to bottom. Exploratory analysis is still in progress.
 - [ ] Baseline classification model
 - [ ] Evaluation of discrimination and calibration
 - [ ] Discussion of limitations and final conclusions
-- [ ] Tested dependency specification and reproducibility review
+- [x] Record the checked Python version and pin direct dependencies
+- [ ] Verify installation and execution in a clean environment
 
 ## Limitations
 
